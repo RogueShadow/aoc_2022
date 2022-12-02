@@ -55,6 +55,7 @@ mod day1 {
     }
 }
 mod day2 {
+    use std::time::Instant;
     use RPS::*;
     use WLD::*;
 
@@ -73,7 +74,7 @@ mod day2 {
         Unknown,
     }
     pub fn  day2() {
-
+        let timer = Instant::now();
         // part 1.
         let input = include_str!("../day2_input.txt")
             .split("\n")
@@ -81,10 +82,13 @@ mod day2 {
             .map(|s| (*s.first().unwrap(),*s.last().unwrap()))
             .map(|(them,you)| (map_data_rps(them),map_data_rps(you)))
             .collect::<Vec<_>>();
+        println!("Processing input: {:?}",timer.elapsed());
         let score = input.iter().fold(0,|acc,(them,you)|{acc + score_round(them,you)});
+        println!("Playing {:?} rounds of RPS: {:?}",input.len(),timer.elapsed());
         println!("Score: {:?}",score);
 
         // part 2.
+        let timer = Instant::now();
         let input = include_str!("../day2_input.txt")
             .split("\n")
             .map(|s| s.split(" ").collect::<Vec<_>>())
@@ -92,7 +96,9 @@ mod day2 {
             .map(|(them,you)| (map_data_rps(them),map_win_lose_draw(you)))
             .map(|(them, you)| (them, play_to_wld(&them,&you)))
             .collect::<Vec<_>>();
+        println!("Processing input: {:?}",timer.elapsed());
         let score = input.iter().fold(0,|acc,(them,you)|{acc + score_round(them,you)});
+        println!("Playing {:?} rounds of RPS: {:?}",input.len(),timer.elapsed());
         println!("Score: {:?}",score);
 
     }
