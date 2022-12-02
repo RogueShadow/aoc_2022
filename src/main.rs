@@ -1,22 +1,53 @@
+#![feature(iter_order_by)]
+
+use std::time::Instant;
+use colored::Colorize;
 
 fn main() {
     day1::day1();
     day2::day2();
 }
 
+pub struct Profiler {
+    name: String,
+    timer: Instant,
+    global: Instant,
+}
+impl Profiler {
+    pub fn new(title: &str) -> Self {
+        Self {
+            name: String::from(title),
+            timer: Instant::now(),
+            global: Instant::now(),
+        }
+    }
+    pub fn log(&mut self, msg: &str) {
+        let elapsed = self.timer.elapsed();
+        self.timer = Instant::now();
+        println!("{} - {}",msg.bright_green(),format!("{:?}",elapsed).red());
+    }
+    pub fn total(&self) {
+        println!("{} - {} - {}",self.name.bright_green(),format!("{:?}",self.global.elapsed()).red(),"total".red());
+    }
+}
+
 mod day1 {
     use std::str::FromStr;
+    use crate::Profiler;
 
     pub fn day1() {
-        let timer = std::time::Instant::now();
-        let input = include_str!("../input.txt").split("\n").collect::<Vec<_>>();
-        println!("Get Input as lines: {:?}", timer.elapsed());
+        let mut prof = Profiler::new("Day 1, Part 1");
+        let file = std::fs::read_to_string("input.txt").expect("Reading input");
+        prof.log("Read File");
+        let input = file.lines().collect();
+        prof.log("Get Lines");
         let elves = construct_elves(&input);
-        println!("Construct Elves from data: {:?}", timer.elapsed());
+        prof.log("Construct Elves");
         let totals = calculate_elf_totals(&elves);
-        println!("Calculate calories of elves: {:?}", timer.elapsed());
+        prof.log("Calculate Calories");
         let top_three = &totals.as_slice()[0..=2].iter().fold(0,|acc,(_,c)| acc + c);
-        println!("Total time: {:?}", timer.elapsed());
+        prof.log("Aquire Top Three");
+        prof.total();
         println!("Most calories: {:?} from elf {}",totals.first().expect("Elf").1,totals.first().expect("Elf").0);
         println!("Top three combined calories: {:?}",top_three);
         println!("{:?} Elves",elves.len());
@@ -55,9 +86,9 @@ mod day1 {
     }
 }
 mod day2 {
-    use std::time::Instant;
     use RPS::*;
     use WLD::*;
+    use crate::Profiler;
 
     #[derive(Debug,Copy,Clone)]
     pub enum RPS {
@@ -74,7 +105,7 @@ mod day2 {
         Unknown,
     }
     pub fn  day2() {
-        let timer = Instant::now();
+        let mut p = Profiler::new("Day 2 Part 1");
         // part 1.
         let input = include_str!("../day2_input.txt")
             .split("\n")
@@ -82,13 +113,14 @@ mod day2 {
             .map(|s| (*s.first().unwrap(),*s.last().unwrap()))
             .map(|(them,you)| (map_data_rps(them),map_data_rps(you)))
             .collect::<Vec<_>>();
-        println!("Processing input: {:?}",timer.elapsed());
+        p.log("Input Processed");
         let score = input.iter().fold(0,|acc,(them,you)|{acc + score_round(them,you)});
-        println!("Playing {:?} rounds of RPS: {:?}",input.len(),timer.elapsed());
+        p.log(format!("Played {} rounds of RPS",input.len()).as_str());
         println!("Score: {:?}",score);
+        p.total();
 
         // part 2.
-        let timer = Instant::now();
+        let mut p = Profiler::new("Day 2 Part 2");
         let input = include_str!("../day2_input.txt")
             .split("\n")
             .map(|s| s.split(" ").collect::<Vec<_>>())
@@ -96,11 +128,11 @@ mod day2 {
             .map(|(them,you)| (map_data_rps(them),map_win_lose_draw(you)))
             .map(|(them, you)| (them, play_to_wld(&them,&you)))
             .collect::<Vec<_>>();
-        println!("Processing input: {:?}",timer.elapsed());
+        p.log("Processed Input");
         let score = input.iter().fold(0,|acc,(them,you)|{acc + score_round(them,you)});
-        println!("Playing {:?} rounds of RPS: {:?}",input.len(),timer.elapsed());
+        p.log(format!("Playing {} rounds of RPS",input.len()).as_str());
         println!("Score: {:?}",score);
-
+        p.total();
     }
     pub fn map_win_lose_draw(value: &str) -> WLD {
         match value {
