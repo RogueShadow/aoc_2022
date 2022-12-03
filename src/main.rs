@@ -4,19 +4,30 @@ use std::str::FromStr;
 
 fn main() {
     let args = args().collect::<Vec<_>>();
-    let day = i32::from_str(&args[1]).expect("Parse Day as int");
-    let test = args.len() == 3 && args[2] == "test";
-    if let Ok(input) = read_to_string(
-        if !test {format!("day{}_input.txt",day)} else {format!("day{}_test.txt",day)}
-    ) {
-        match day {
-            1 => day1::day1(input),
-            2 => day2::day2(input),
-            3 => day3::day3(input),
-            _ => println!("Day {} not complete.", day)
+    if args.len() < 2 {
+        println!("Must supply day as an argument. program day [test]");
+        return;
+    }
+    if let Ok(day) = i32::from_str(&args[1]) {
+        let test = args.len() == 3 && args[2] == "test";
+        if let Ok(input) = read_to_string(
+            if !test { format!("day{}_input.txt", day) } else { format!("day{}_test.txt", day) }
+        ) {
+            match day {
+                1 => day1::day1(input),
+                2 => day2::day2(input),
+                3 => day3::day3(input),
+                _ => println!("Day {} not complete.", day)
+            }
+        } else {
+            if !test {
+                println!("No input for day {} found", day);
+            } else {
+                println!("No input for day {} test found.",day);
+            }
         }
     } else {
-        println!("No input for day {} found",day);
+        println!("Must supply day as an argument. program day [test]");
     }
 }
 mod util {
@@ -62,6 +73,8 @@ mod day1 {
         let top_three = &totals.as_slice()[0..=2].iter().fold(0,|acc,(_,c)| acc + c);
         prof.log("Aquire Top Three");
         prof.total();
+        println!("{:?}",elves);
+        println!("{:?}",totals);
         println!("Most calories: {:?} from elf {}",totals.first().expect("Elf").1,totals.first().expect("Elf").0);
         println!("Top three combined calories: {:?}",top_three);
         println!("{:?} Elves",elves.len());
@@ -69,7 +82,8 @@ mod day1 {
     }
 
     pub fn construct_elves(lines: &Vec<&str>) -> Vec<Elf> {
-        let mut elves = vec![Elf { food: vec![] }];
+        println!("{:?}",lines);
+        let mut elves = vec![];
         let mut elf = Elf { food: vec![] };
         for food in lines {
             if !food.is_empty() {
@@ -81,6 +95,7 @@ mod day1 {
                 elf = Elf { food: vec![] };
             }
         }
+        elves.push(elf);
         elves
     }
 
@@ -134,8 +149,7 @@ mod day2 {
 
         // part 2.
         let mut p = Profiler::new("Day 2 Part 2");
-        let input = include_str!("../day2_input.txt")
-            .split("\n")
+        let input = data.split("\n")
             .map(|s| s.split(" ").collect::<Vec<_>>())
             .map(|s| (*s.first().unwrap(),*s.last().unwrap()))
             .map(|(them,you)| (map_data_rps(them),map_win_lose_draw(you)))
