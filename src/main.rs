@@ -1,39 +1,44 @@
 #![feature(iter_order_by)]
 
-use std::time::Instant;
-use colored::Colorize;
 
 fn main() {
     day1::day1();
     day2::day2();
+    day3::day3();
 }
 
-pub struct Profiler {
-    name: String,
-    timer: Instant,
-    global: Instant,
-}
-impl Profiler {
-    pub fn new(title: &str) -> Self {
-        Self {
-            name: String::from(title),
-            timer: Instant::now(),
-            global: Instant::now(),
+mod util {
+    use std::time::Instant;
+    use colored::Colorize;
+
+    pub(crate) struct Profiler {
+        name: String,
+        timer: Instant,
+        global: Instant,
+    }
+    impl Profiler {
+        pub fn new(title: &str) -> Self {
+            Self {
+                name: String::from(title),
+                timer: Instant::now(),
+                global: Instant::now(),
+            }
+        }
+        pub fn log(&mut self, msg: &str) {
+            let elapsed = self.timer.elapsed();
+            self.timer = Instant::now();
+            println!("{} - {}",msg.bright_green(),format!("{:?}",elapsed).red());
+        }
+        pub fn total(&self) {
+            println!("{} - {} - {}",self.name.bright_green(),format!("{:?}",self.global.elapsed()).red(),"total".red());
         }
     }
-    pub fn log(&mut self, msg: &str) {
-        let elapsed = self.timer.elapsed();
-        self.timer = Instant::now();
-        println!("{} - {}",msg.bright_green(),format!("{:?}",elapsed).red());
-    }
-    pub fn total(&self) {
-        println!("{} - {} - {}",self.name.bright_green(),format!("{:?}",self.global.elapsed()).red(),"total".red());
-    }
 }
+
 
 mod day1 {
     use std::str::FromStr;
-    use crate::Profiler;
+    use crate::util::Profiler;
 
     pub fn day1() {
         let mut prof = Profiler::new("Day 1, Part 1");
@@ -88,7 +93,7 @@ mod day1 {
 mod day2 {
     use RPS::*;
     use WLD::*;
-    use crate::Profiler;
+    use crate::util::Profiler;
 
     #[derive(Debug,Copy,Clone)]
     pub enum RPS {
@@ -177,5 +182,86 @@ mod day2 {
             (Scissors,Scissors) => 3 + 3,
             _ => 0,
         }
+    }
+}
+mod day3 {
+    use std::fs::{read, read_to_string};
+    use std::io::BufRead;
+    use std::str::FromStr;
+    use crate::util::Profiler;
+
+    #[derive(Debug)]
+    pub struct Rucksack {
+        a: String,
+        b: String,
+    }
+
+    pub fn day3() {
+        let mut p = Profiler::new("Day 3 Part 1");
+        let file = std::io::Cursor::new(read("day3_input.txt").expect("Read File"))
+            .lines()
+            .map(|l| l.unwrap())
+            .map(|s| Rucksack {
+                a: s[0..s.len() / 2].to_owned(),
+                b: s[s.len() / 2..s.len()].to_owned(),
+            }).collect::<Vec<_>>();
+        p.log("Create Rucksack Vector from input");
+
+        // part 1
+        let sum = file.iter().map(|r| get_common_item(&r))
+            .map(|i| score_item(&(i as u8)))
+            .sum::<i32>();
+        p.log("Find common item and score and sum.");
+        p.total();
+        p = Profiler::new("Day 3 Part 2");
+
+        let elf_groups = get_elf_badges(&file);
+
+        println!("{:?}",sum);
+        println!("{:?}",elf_groups);
+
+    }
+    pub fn get_elf_badges(elves: &Vec<Rucksack>) -> i32 {
+        let mut tally = 0;
+        for (i,_) in elves.iter().enumerate().step_by(3) {
+            let rs1 = elves[i].a.to_owned() + &elves[i].b;
+            let rs2 = elves[i+1].a.to_owned() + &elves[i+1].b;
+            let rs3 = elves[i+2].a.to_owned() + &elves[i+2].b;
+            let common = get_common_item2(&rs1,&rs2,&rs3);
+            let badge = score_item(&(common as u8));
+            tally += badge;
+        }
+        tally
+    }
+    pub fn get_common_item2(list1: &str, list2: &str, list3: &str) -> char {
+        let mut common = vec![];
+        for c in list1.chars() {
+           if list2.contains(c) {
+               if !common.contains(&c) {
+                   common.push(c);
+               }
+           };
+        }
+        for c in common {
+            if list3.contains(c) {
+                return c
+            }
+        }
+        panic!("No common item found.")
+    }
+    pub fn get_common_item(sack: &Rucksack) -> char {
+        for c in sack.a.chars().into_iter() {
+            if sack.b.contains(c) {
+                return c;
+            }
+        }
+        ' '
+    }
+    pub fn score_item(item: &u8) -> i32 {
+        let items = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (i,c) in items.iter().enumerate() {
+            if item == c {return i as i32 + 1}
+        }
+        panic!("Couldn't find item.")
     }
 }
