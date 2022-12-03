@@ -1,12 +1,24 @@
-#![feature(iter_order_by)]
-
+use std::env::args;
+use std::fs::read_to_string;
+use std::str::FromStr;
 
 fn main() {
-    day1::day1();
-    day2::day2();
-    day3::day3();
+    let args = args().collect::<Vec<_>>();
+    let day = i32::from_str(&args[1]).expect("Parse Day as int");
+    let test = args.len() == 3 && args[2] == "test";
+    if let Ok(input) = read_to_string(
+        if !test {format!("day{}_input.txt",day)} else {format!("day{}_test.txt",day)}
+    ) {
+        match day {
+            1 => day1::day1(input),
+            2 => day2::day2(input),
+            3 => day3::day3(input),
+            _ => println!("Day {} not complete.", day)
+        }
+    } else {
+        println!("No input for day {} found",day);
+    }
 }
-
 mod util {
     use std::time::Instant;
     use colored::Colorize;
@@ -34,17 +46,14 @@ mod util {
         }
     }
 }
-
-
 mod day1 {
     use std::str::FromStr;
     use crate::util::Profiler;
 
-    pub fn day1() {
+    pub fn day1(data: String) {
         let mut prof = Profiler::new("Day 1, Part 1");
-        let file = std::fs::read_to_string("input.txt").expect("Reading input");
         prof.log("Read File");
-        let input = file.lines().collect();
+        let input = data.lines().collect();
         prof.log("Get Lines");
         let elves = construct_elves(&input);
         prof.log("Construct Elves");
@@ -109,11 +118,10 @@ mod day2 {
         Draw,
         Unknown,
     }
-    pub fn  day2() {
+    pub fn  day2(data: String) {
         let mut p = Profiler::new("Day 2 Part 1");
         // part 1.
-        let input = include_str!("../day2_input.txt")
-            .split("\n")
+        let input = data.split("\n")
             .map(|s| s.split(" ").collect::<Vec<_>>())
             .map(|s| (*s.first().unwrap(),*s.last().unwrap()))
             .map(|(them,you)| (map_data_rps(them),map_data_rps(you)))
@@ -185,9 +193,6 @@ mod day2 {
     }
 }
 mod day3 {
-    use std::fs::{read, read_to_string};
-    use std::io::BufRead;
-    use std::str::FromStr;
     use crate::util::Profiler;
 
     #[derive(Debug)]
@@ -195,31 +200,25 @@ mod day3 {
         a: String,
         b: String,
     }
-
-    pub fn day3() {
+    pub fn day3(data: String) {
         let mut p = Profiler::new("Day 3 Part 1");
-        let file = std::io::Cursor::new(read("day3_input.txt").expect("Read File"))
-            .lines()
-            .map(|l| l.unwrap())
+        let input = data.lines()
             .map(|s| Rucksack {
                 a: s[0..s.len() / 2].to_owned(),
                 b: s[s.len() / 2..s.len()].to_owned(),
             }).collect::<Vec<_>>();
         p.log("Create Rucksack Vector from input");
-
         // part 1
-        let sum = file.iter().map(|r| get_common_item(&r))
+        let sum = input.iter().map(|r| get_common_item(&r))
             .map(|i| score_item(&(i as u8)))
             .sum::<i32>();
         p.log("Find common item and score and sum.");
+        println!("{:?}",sum);
         p.total();
         p = Profiler::new("Day 3 Part 2");
-
-        let elf_groups = get_elf_badges(&file);
-
-        println!("{:?}",sum);
+        let elf_groups = get_elf_badges(&input);
+        p.total();
         println!("{:?}",elf_groups);
-
     }
     pub fn get_elf_badges(elves: &Vec<Rucksack>) -> i32 {
         let mut tally = 0;
