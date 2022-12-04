@@ -26,6 +26,7 @@ fn main() {
             1 => day1::day1(input),
             2 => day2::day2(input),
             3 => day3::day3(input),
+            4 => day4::day4(input),
             _ => println!("Day {} not complete.", day)
         }
     } else {
@@ -276,5 +277,61 @@ mod day3 {
             if item == c {return i as i32 + 1}
         }
         panic!("Couldn't find item.")
+    }
+}
+mod day4 {
+    use std::ops::Range;
+    use std::str::FromStr;
+
+    pub fn day4(data: String) {
+        let contained = |r: Vec<Vec<i32>>| {
+            if (r[0][0] >= r[1][0] &&
+                r[0][1] <= r[1][1]) ||
+                (r[1][0] >= r[0][0] &&
+                    r[1][1] <= r[0][1])
+            {true} else {false}
+        };
+        let result = data
+            .lines()
+            .map(|l| l.split(',')
+            .collect::<Vec<_>>())
+            .map(|r| {
+                r.iter()
+                    .map(|v| v.split('-')
+                        .map(|n| i32::from_str(n).unwrap_or(0))
+                        .collect::<Vec<_>>())
+                    .collect::<Vec<_>>()
+            })
+            .map(|r| contained(r))
+            .filter(|v| *v == true )
+            .collect::<Vec<_>>()
+            .len();
+
+        println!("{:?}",result);
+
+        let overlap = |r: Vec<Vec<i32>>| {
+            if (r[0][1] >= r[1][0] &&
+                r[0][0] <= r[1][1]) ||
+               (r[1][1] >= r[0][0] &&
+                r[1][0] <= r[0][1])
+            {true} else {false}
+        };
+        let result = data
+            .lines()
+            .map(|l| l.split(',')
+                .collect::<Vec<_>>())
+            .map(|r| {
+                r.iter()
+                    .map(|v| v.split('-')
+                        .map(|n| i32::from_str(n).unwrap_or(0))
+                        .collect::<Vec<_>>())
+                    .collect::<Vec<_>>()
+            })
+            .map(|r| overlap(r))
+            .filter(|v| *v == true )
+            .collect::<Vec<_>>()
+            .len();
+
+        println!("{:?}",result);
     }
 }
