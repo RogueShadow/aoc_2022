@@ -5,29 +5,31 @@ use std::str::FromStr;
 fn main() {
     let args = args().collect::<Vec<_>>();
     if args.len() < 2 {
-        println!("Must supply day as an argument. program day [test]");
+        println!("Must supply day as an argument.");
         return;
     }
-    if let Ok(day) = i32::from_str(&args[1]) {
-        let test = args.len() == 3 && args[2] == "test";
-        if let Ok(input) = read_to_string(
-            if !test { format!("day{}_input.txt", day) } else { format!("day{}_test.txt", day) }
-        ) {
-            match day {
-                1 => day1::day1(input),
-                2 => day2::day2(input),
-                3 => day3::day3(input),
-                _ => println!("Day {} not complete.", day)
-            }
-        } else {
-            if !test {
-                println!("No input for day {} found", day);
-            } else {
-                println!("No input for day {} test found.",day);
-            }
+    let day = i32::from_str(&args[1]);
+    if day.is_err() {
+        println!("Invalid day supplied.");
+        return;
+    }
+    let day = day.unwrap();
+
+    let file = if args.len() == 3 && args[2] == "test" {
+        format!("day{}_test.txt", day)
+    } else {
+        format!("day{}_input.txt", day)
+    };
+
+    if let Ok(input) = read_to_string(file) {
+        match day {
+            1 => day1::day1(input),
+            2 => day2::day2(input),
+            3 => day3::day3(input),
+            _ => println!("Day {} not complete.", day)
         }
     } else {
-        println!("Must supply day as an argument. program day [test]");
+        println!("No input for day {} found.",day);
     }
 }
 mod util {
@@ -50,10 +52,10 @@ mod util {
         pub fn log(&mut self, msg: &str) {
             let elapsed = self.timer.elapsed();
             self.timer = Instant::now();
-            println!("{} - {}",msg.bright_green(),format!("{:?}",elapsed).red());
+            println!("{} - {}",msg.bright_green(),format!("{:?}",elapsed).yellow());
         }
         pub fn total(&self) {
-            println!("{} - {} - {}",self.name.bright_green(),format!("{:?}",self.global.elapsed()).red(),"total".red());
+            println!("{} - {} - {}",self.name.bright_green(),"total".yellow(),format!("{:?}",self.global.elapsed()).yellow());
         }
     }
 }
@@ -73,8 +75,6 @@ mod day1 {
         let top_three = &totals.as_slice()[0..=2].iter().fold(0,|acc,(_,c)| acc + c);
         prof.log("Aquire Top Three");
         prof.total();
-        println!("{:?}",elves);
-        println!("{:?}",totals);
         println!("Most calories: {:?} from elf {}",totals.first().expect("Elf").1,totals.first().expect("Elf").0);
         println!("Top three combined calories: {:?}",top_three);
         println!("{:?} Elves",elves.len());
@@ -82,7 +82,6 @@ mod day1 {
     }
 
     pub fn construct_elves(lines: &Vec<&str>) -> Vec<Elf> {
-        println!("{:?}",lines);
         let mut elves = vec![];
         let mut elf = Elf { food: vec![] };
         for food in lines {
@@ -115,6 +114,7 @@ mod day1 {
     }
 }
 mod day2 {
+    use rayon::prelude::*;
     use RPS::*;
     use WLD::*;
     use crate::util::Profiler;
@@ -133,11 +133,11 @@ mod day2 {
         Draw,
         Unknown,
     }
-    pub fn  day2(data: String) {
+    pub fn day2(data: String) {
         let mut p = Profiler::new("Day 2 Part 1");
         // part 1.
-        let input = data.split("\n")
-            .map(|s| s.split(" ").collect::<Vec<_>>())
+        let input = data.par_split('\n')
+            .map(|s| s.par_split(' ').collect::<Vec<_>>())
             .map(|s| (*s.first().unwrap(),*s.last().unwrap()))
             .map(|(them,you)| (map_data_rps(them),map_data_rps(you)))
             .collect::<Vec<_>>();
@@ -149,7 +149,7 @@ mod day2 {
 
         // part 2.
         let mut p = Profiler::new("Day 2 Part 2");
-        let input = data.split("\n")
+        let input = data.par_split('\n')
             .map(|s| s.split(" ").collect::<Vec<_>>())
             .map(|s| (*s.first().unwrap(),*s.last().unwrap()))
             .map(|(them,you)| (map_data_rps(them),map_win_lose_draw(you)))
