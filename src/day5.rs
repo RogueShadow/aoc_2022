@@ -1,6 +1,8 @@
 use std::str::FromStr;
 use std::time::Instant;
+extern crate test;
 
+#[inline(always)]
 pub fn day5(data: String) {
     let timer = Instant::now();
     let global = Instant::now();
@@ -48,6 +50,7 @@ pub fn day5(data: String) {
 
 }
 
+
 pub fn perform_move(crates: &mut Vec<String>, number: i32, from: usize, to: usize) -> &mut Vec<String> {
     let from = from - 1;
     let to = to - 1;
@@ -92,4 +95,19 @@ pub fn get_crates(data: &str) -> Vec<String> {
         crates.push(new_line);
     }
     crates
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    pub fn bench_day5(b: &mut Bencher) {
+        b.iter(||{
+            let value = day5(include_str!("../day5_input.txt").to_owned());
+            test::black_box(value);
+        });
+    }
+
 }

@@ -1,3 +1,4 @@
+#![feature(test)]
 mod day1;
 mod day2;
 mod day3;
@@ -46,7 +47,7 @@ fn main() {
             3 => day3(input),
             4 => day4(input),
             5 => day5(input),
-            6 => day6(input),
+            6 => day6(&input),
             _ => println!("Day {} not complete.", day)
         }
     } else {

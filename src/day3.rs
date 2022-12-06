@@ -1,4 +1,5 @@
 use std::time::Instant;
+extern crate test;
 
 #[derive(Debug)]
 pub struct Rucksack {
@@ -66,4 +67,17 @@ pub fn score_item(item: &u8) -> i32 {
         if item == c {return i as i32 + 1}
     }
     panic!("Couldn't find item.")
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    pub fn bench_day6p1(b: &mut Bencher) {
+        b.iter(||{
+            let value = day3(include_str!("../day3_input.txt").to_owned());
+            test::black_box(value);
+        });
+    }
 }

@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use std::time::Instant;
+extern crate test;
 
 pub fn day4(data: String) {
     pub fn solver(data: &str, cmp: impl Fn(Vec<Vec<i32>>) -> bool) -> usize {
@@ -40,4 +41,18 @@ pub fn day4(data: String) {
     let result = solver(data.as_str(),overlap);
     println!("Completed in {:?}",timer.elapsed());
     println!("{}",result);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    pub fn bench_day4(b: &mut Bencher) {
+        b.iter(||{
+            let value = day4(include_str!("../day4_input.txt").to_owned());
+            test::black_box(value);
+        });
+    }
 }
