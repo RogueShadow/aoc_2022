@@ -1,7 +1,12 @@
 use std::str::FromStr;
+use std::time::Instant;
 
 pub fn day5(data: String) {
+    let timer = Instant::now();
+    let global = Instant::now();
     let data = data.split("\n\n").collect::<Vec<_>>();
+    println!("Split Data - {:?}",timer.elapsed());
+    let timer = Instant::now();
     let crates = data[0];
     let instructions = data[1].lines()
         .map(|s| s
@@ -16,20 +21,30 @@ pub fn day5(data: String) {
             i32::from_str(s[5]).unwrap()
         )
     ).collect::<Vec<_>>();
-    let mut crates1 = get_crates(crates.clone());
-    let mut crates2 = get_crates(crates);
-    println!("{:?}",&crates1);
-    for (num,from,to) in instructions {
-        perform_move(&mut crates1,num,from as usize,to as usize);
-        perform_updated_move(&mut crates2, num, from as usize, to as usize);
+    println!("Parsed Instructions - {:?}",timer.elapsed());
+    let timer = Instant::now();
+    let mut crates1 = get_crates(crates);
+    let mut crates2 = crates1.clone();
+    println!("Parsed Crates - {:?}",timer.elapsed());
+    let timer = Instant::now();
+    for (num,from,to) in instructions.iter() {
+        perform_move(&mut crates1,*num,*from as usize,*to as usize);
     }
-    println!("{:?}",&crates1);
+    println!("Perform moves 1 - {:?}",timer.elapsed());
+    let timer = Instant::now();
+    for (num,from,to) in instructions.iter() {
+        perform_updated_move(&mut crates2, *num, *from as usize, *to as usize);
+    }
+    println!("Perform moves 2 - {:?}",timer.elapsed());
+    let timer = Instant::now();
     let result = &crates1.iter().map(|s| s.chars().last().unwrap()).collect::<String>();
     println!("{:?}",result);
 
-    println!("{:?}",&crates2);
+
     let result = &crates2.iter().map(|s| s.chars().last().unwrap()).collect::<String>();
     println!("{:?}",result);
+    println!("Got final crate positions - {:?}",timer.elapsed());
+    println!("Completed in {:?}",global.elapsed());
 
 }
 
@@ -44,15 +59,14 @@ pub fn perform_move(crates: &mut Vec<String>, number: i32, from: usize, to: usiz
 }
 
 pub fn perform_updated_move(crates: &mut Vec<String>, number: i32, from: usize, to: usize) -> &mut Vec<String> {
-    let from = from - 1;
-    let to = to - 1;
-    let mut boxes = vec![];
-    for _ in 0..number {
-        boxes.push(crates[from].pop().unwrap());
-    }
-    for b in boxes.iter().rev(){
-        crates[to].push(*b);
-    }
+    let c_from = &crates[from - 1];
+    let start = c_from.len() - number as usize;
+    let end = c_from.len();
+    let slice = &c_from[start..end].to_owned();
+    let c_to = &mut crates[to - 1];
+    *c_to += slice;
+    let cfrom = &mut crates[from - 1];
+    let _ = cfrom.drain(start..end);
     crates
 }
 
