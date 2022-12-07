@@ -4,14 +4,14 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 pub fn day7(data: String) {
-    //day7p1(data);
-    day7p2(data);
+    day7p1(data);
+    //day7p2(data);
 }
 pub fn day7p1(data: String)  {
     let mut fs = FsBuilder::new();
     fs.build(data);
-    println!("{}",fs.get_path("/").size());
-    println!("{:?}",fs.fs);
+    //println!("{}",fs.get_path("/").size());
+    //println!("{:?}",fs.fs);
     println!("{:?}",fs.fs.scan_for_size().iter().filter(|n|  **n < 100000_u32 ).sum::<u32>());
 }
 pub fn day7p2(data: String) {
@@ -19,16 +19,17 @@ pub fn day7p2(data: String) {
     fs.build(data);
     let total_size = 70000000_u32;
     let required_space = 30000000_u32;
-    println!("{:?}",fs.fs.scan_for_size().iter().sum::<u32>());
+    //println!("{:?}",fs.fs.scan_for_size().iter().sum::<u32>());
     let used_space = fs.fs.size();
-    println!("Used Space: {}",used_space);
+   // println!("Used Space: {}",used_space);
     let unused_space = total_size - used_space;
-    println!("Free Space: {}",unused_space);
+   // println!("Free Space: {}",unused_space);
     let space_needed = required_space - unused_space;
-    println!("{:?}",fs.fs.scan_for_size_with_name());
+   // println!("{:?}",fs.fs.scan_for_size_with_name());
     let mut dirs = fs.fs.scan_for_size_with_name();
-    let filtered_dirs = dirs.iter().filter(|(n, f)| *f > space_needed).collect::<Vec<_>>();
-    println!("Directories of required size {:?}",filtered_dirs);
+    let mut filtered_dirs = dirs.iter().filter(|(n, f)| *f > space_needed).collect::<Vec<_>>();
+    filtered_dirs.sort_by(|(n,s),(n1,s1)| s.cmp(s1) );
+    println!("{:?}",filtered_dirs.first().unwrap().1);
 
 }
 
@@ -150,4 +151,22 @@ impl Folder {
 pub struct File {
     name: String,
     size: u32,
+}
+
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    pub fn bench_day7p1(b: &mut Bencher) {
+        b.iter(||{
+            day7p1(include_str!("../day7_input.txt").to_owned());
+        });
+    }
+    #[bench]
+    pub fn bench_day7p2(b: &mut Bencher) {
+        b.iter(||{
+            day7p2(include_str!("../day7_input.txt").to_owned());
+        });
+    }
 }
