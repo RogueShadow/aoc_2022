@@ -1,11 +1,10 @@
 extern crate test;
-
 use std::collections::HashMap;
 use std::str::FromStr;
 
 pub fn day7(data: String) {
-    day7p1(data);
-    //day7p2(data);
+    day7p1(data.clone());
+    day7p2(data.clone());
 }
 pub fn day7p1(data: String)  {
     let mut fs = FsBuilder::new();
