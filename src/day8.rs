@@ -5,6 +5,7 @@ use std::str::FromStr;
 
 pub fn day8(data: &str) {
     day8p1(data);
+    day8p2(data);
 }
 pub fn day8p1(data: &str) {
     let forest = data
@@ -16,24 +17,23 @@ pub fn day8p1(data: &str) {
             ).unwrap())
             .collect::<Vec<_>>())
         .collect::<Vec<_>>();
-    // let height = forest.len();
-    // let width = forest[0].len();
-    // for x in 0..width {
-    //     for y in 0..height {
-    //         print!("{}",forest[x][y]);
-    //     }
-    //     print!("\n");
-    // }
-    //print!("-------------------------------------\n");
+
     let map = tree_vis_map(&forest);
-    // for x in 0..width {
-    //     for y in 0..height {
-    //         print!("{}",if map[&(x,y)] {'o'} else {'x'});
-    //     }
-    //     print!("\n");
-    // }
+
     let visible_trees = map.values().filter(|v| **v == true).count();
     println!("Visible Trees: {:?}",visible_trees);
+
+}
+pub fn day8p2(data: &str) {
+    let forest = data
+        .lines()
+        .map(|l| l
+            .chars()
+            .map(|c| i32::from_str(
+                c.to_string().as_str()
+            ).unwrap())
+            .collect::<Vec<_>>())
+        .collect::<Vec<_>>();
     let mut score = 0;
     for x in 0..forest.len() {
         for y in 0..forest[0].len() {
@@ -138,5 +138,10 @@ mod tests {
     pub fn bench_day8p1(b: &mut Bencher) {
         let input = read_to_string("day8_input.txt").unwrap();
         b.iter(|| day8p1(&input));
+    }
+    #[bench]
+    pub fn bench_day8p2(b: &mut Bencher) {
+        let input = read_to_string("day8_input.txt").unwrap();
+        b.iter(|| day8p2(&input));
     }
 }
