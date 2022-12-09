@@ -7,6 +7,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 use std::env::args;
 use std::fs::read_to_string;
@@ -19,6 +20,7 @@ use day5::day5;
 use day6::day6;
 use day7::day7;
 use day8::day8;
+use day9::day9;
 
 
 fn main() {
@@ -54,6 +56,7 @@ fn main() {
             6 => day6(&input),
             7 => day7(input),
             8 => day8(&input),
+            9 => day9(&input),
             _ => println!("Day {} not complete.", day)
         }
     } else {
