@@ -25,31 +25,35 @@ pub fn day9p1(moves: &Vec<Move>) {
     let mut visited = vec![(0,5)];
     let mut head = Head {x: 0, y: 5};
     let mut tail = Tail {x: 0, y: 5};
+    print_map(&head,&tail,&visited);
     for m in moves {
-        print_map(&head,&tail,&visited);
         match m {
             Up(n) => {
                 for _ in 0..*n {
                     head.y -= 1;
                     move_tail(&head,&mut tail,Some(&mut visited));
+                    print_map(&head,&tail,&visited);
                 }
             }
             Down(n) => {
                 for _ in 0..*n {
                     head.y += 1;
                     move_tail(&head,&mut tail,Some(&mut visited));
+                    print_map(&head,&tail,&visited);
                 }
             }
             Left(n) => {
                 for _ in 0..*n {
                     head.x -= 1;
                     move_tail(&head,&mut tail,Some(&mut visited));
+                    print_map(&head,&tail,&visited);
                 }
             }
             Right(n) => {
                 for _ in 0..*n {
                     head.x += 1;
                     move_tail(&head,&mut tail,Some(&mut visited));
+                    print_map(&head,&tail,&visited);
                 }
             }
         }
@@ -95,7 +99,7 @@ pub fn print_map(head: &Head, tail: &Tail, visited: &Vec<(i32,i32)>) {
                 (false,false,true) => {'o'}
                 (false,false,false) => {'.'}
             };
-            print!("{}",c);
+            print!("{} ",c);
         }
         print!("\n");
     }
