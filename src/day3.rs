@@ -76,7 +76,7 @@ mod tests {
     #[bench]
     pub fn bench_day6p1(b: &mut Bencher) {
         b.iter(||{
-            let value = day3(include_str!("../day3_input.txt").to_owned());
+            let value = day3(include_str!("../inputs/day3_input.txt").to_owned());
             test::black_box(value);
         });
     }

@@ -41,14 +41,14 @@ mod tests {
     #[bench]
     pub fn bench_day6p1(b: &mut Bencher) {
         b.iter(||{
-            let value = day6p1(include_str!("../day6_input.txt")).unwrap();
+            let value = day6p1(include_str!("../inputs/day6_input.txt")).unwrap();
             test::black_box(value);
         });
     }
     #[bench]
     pub fn bench_day6p2(b: &mut Bencher) {
         b.iter(||{
-            let value = day6p2(include_str!("../day6_input.txt")).unwrap();
+            let value = day6p2(include_str!("../inputs/day6_input.txt")).unwrap();
             test::black_box(value);
         });
     }

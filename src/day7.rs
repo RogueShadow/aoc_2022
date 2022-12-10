@@ -159,13 +159,13 @@ mod tests {
     #[bench]
     pub fn bench_day7p1(b: &mut Bencher) {
         b.iter(||{
-            day7p1(include_str!("../day7_input.txt").to_owned());
+            day7p1(include_str!("../inputs/day7_input.txt").to_owned());
         });
     }
     #[bench]
     pub fn bench_day7p2(b: &mut Bencher) {
         b.iter(||{
-            day7p2(include_str!("../day7_input.txt").to_owned());
+            day7p2(include_str!("../inputs/day7_input.txt").to_owned());
         });
     }
 }

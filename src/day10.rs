@@ -93,3 +93,15 @@ pub fn get_cycles(op: &Ops) -> usize {
 pub fn get_signal_strength(watch: &(usize,i32)) -> i32 {
     watch.0 as i32 * watch.1
 }
+
+pub mod tests {
+    use std::fs::read_to_string;
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    pub fn bench_day10(b: &mut Bencher) {
+        let input = read_to_string("inputs/day10_input.txt").unwrap();
+        b.iter(|| day10(&input));
+    }
+}
