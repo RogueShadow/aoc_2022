@@ -1,7 +1,7 @@
 extern crate test;
 
 use std::str::FromStr;
-use image::ColorType;
+use image::{ColorType, Rgb};
 
 pub fn day9(data: &str) {
     let moves = data
@@ -86,6 +86,7 @@ pub fn move_tail(head: &Body, tail: &mut Body, visited: Option<&mut Vec<(i32,i32
 }
 
 pub fn print_map(head: &Body, tail: &Body, visited: &Vec<(i32,i32)>,xsize: (i32,i32), ysize: (i32,i32), frame: i32) {
+    return;
     let mut result = String::new();
     let width = (xsize.1 - xsize.0).abs();
     let height = (ysize.1 - ysize.0).abs();
@@ -106,6 +107,31 @@ pub fn print_map(head: &Body, tail: &Body, visited: &Vec<(i32,i32)>,xsize: (i32,
     }
     image.save(format!("frames/{}_movie.png",frame)).expect("Save image.");
 }
+pub fn print_map2(body: &Vec<Body>, visited: &Vec<(i32,i32)>,xsize: (i32,i32), ysize: (i32,i32), frame: i32) {
+    let width = (xsize.1 - xsize.0).abs();
+    let height = (ysize.1 - ysize.0).abs();
+    let mut image = image::RgbImage::new(width as u32,height as u32);
+    let rope = body.iter().map(|b| (b.x,b.y)).collect::<Vec<_>>();
+
+    for y in ysize.0..ysize.1 {
+        for x in xsize.0..xsize.1 {
+            if visited.contains(&(x,y)) {
+                image.put_pixel(x as u32 + xsize.0.abs() as u32,y as u32 + ysize.0.abs() as u32,Rgb([100,100,100]));
+            }
+            for (i,p) in rope.iter().enumerate() {
+                let color = match i {
+                    0 => Rgb([0,255,0]),
+                    9 => Rgb([255,0,0]),
+                    _ => Rgb([255,255,255]),
+                };
+                if p == &(x,y) {
+                    image.put_pixel(x as u32 + xsize.0.abs() as u32, y as u32 + ysize.0.abs() as u32,color);
+                }
+            }
+        }
+    }
+    image.save(format!("frames2/{}_movie.png",frame)).expect("Save image.");
+}
 pub fn is_tail_touching(head: &Body, tail: &Body) -> bool {
     let result  = if (head.x-1..=head.x+1).contains(&tail.x) &&
         (head.y-1..=head.y+1).contains(&tail.y) {true}
@@ -118,6 +144,10 @@ pub fn day9p2(moves: &Vec<Move>) {
     use Move::*;
     let mut visited = vec![(0,5)];
     let mut segments = (0..10).map(|n| Body {x: 0, y: 5}).collect::<Vec<_>>();
+    let mut frame = 0;
+    print_map2(&segments,&visited,(-268,48),(-192,89),frame);
+    frame += 1;
+
     for m in moves {
         match m {
             Up(n) => {
@@ -129,6 +159,8 @@ pub fn day9p2(moves: &Vec<Move>) {
                         move_tail(&one,two,None);
                     }
                     move_tail(&segments[8].clone(),&mut segments[9],Some(&mut visited));
+                    print_map2(&segments,&visited,(-268,48),(-192,89),frame);
+                    frame += 1;
                 }
             }
             Down(n) => {
@@ -140,6 +172,8 @@ pub fn day9p2(moves: &Vec<Move>) {
                         move_tail(&one,two,None);
                     }
                     move_tail(&segments[8].clone(),&mut segments[9],Some(&mut visited));
+                    print_map2(&segments,&visited,(-268,48),(-192,89),frame);
+                    frame += 1;
 
                 }
             }
@@ -152,6 +186,8 @@ pub fn day9p2(moves: &Vec<Move>) {
                         move_tail(&one,two,None);
                     }
                     move_tail(&segments[8].clone(),&mut segments[9],Some(&mut visited));
+                    print_map2(&segments,&visited,(-268,48),(-192,89),frame);
+                    frame += 1;
 
                 }
             }
@@ -164,11 +200,13 @@ pub fn day9p2(moves: &Vec<Move>) {
                         move_tail(&one,two,None);
                     }
                     move_tail(&segments[8].clone(),&mut segments[9],Some(&mut visited));
+                    print_map2(&segments,&visited,(-268,48),(-192,89),frame);
+                    frame += 1;
 
                 }
             }
         }
-
+        println!("Frame: {}",frame);
     }
     println!("Visited: {}",&visited.len());
 }
