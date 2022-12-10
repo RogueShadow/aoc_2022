@@ -38,7 +38,7 @@ fn main() {
     }
     let day = day.unwrap();
 
-    let file = if args.len() == 3 && args[2] == "test" {
+    let file = "inputs/".to_owned() + if args.len() == 3 && args[2] == "test" {
         format!("day{}_test.txt", day)
     } else {
         if args.len() == 3 && args[2] == "massive" {
@@ -46,7 +46,7 @@ fn main() {
         } else {
             format!("day{}_input.txt", day)
         }
-    };
+    }.as_str();
 
     if let Ok(input) = read_to_string(file) {
         match day {
