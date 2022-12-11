@@ -25,9 +25,9 @@ pub fn day7p2(data: String) {
    // println!("Free Space: {}",unused_space);
     let space_needed = required_space - unused_space;
    // println!("{:?}",fs.fs.scan_for_size_with_name());
-    let mut dirs = fs.fs.scan_for_size_with_name();
-    let mut filtered_dirs = dirs.iter().filter(|(n, f)| *f > space_needed).collect::<Vec<_>>();
-    filtered_dirs.sort_by(|(n,s),(n1,s1)| s.cmp(s1) );
+    let dirs = fs.fs.scan_for_size_with_name();
+    let mut filtered_dirs = dirs.iter().filter(|(_, f)| *f > space_needed).collect::<Vec<_>>();
+    filtered_dirs.sort_by(|(_,s),(_,s1)| s.cmp(s1) );
     println!("{:?}",filtered_dirs.first().unwrap().1);
 
 }
@@ -38,11 +38,6 @@ pub struct FsBuilder {
     pub current_dir: String,
 }
 impl FsBuilder{
-    pub fn get_path(&mut self, path: &str) -> &mut Folder {
-        self.current_dir = path.to_owned();
-        self.get_folder()
-
-    }
     pub fn get_folder(&mut self) -> &mut Folder {
         let mut result= &mut self.fs;
         if self.current_dir == "/" {return result}
@@ -59,7 +54,6 @@ impl FsBuilder{
         }
     }
     pub fn build(&mut self, data: String) {
-        let mut last_cmd = "";
         let mut reading_data = false;
         let mut output = vec![];
         for line in data.lines() {
@@ -69,7 +63,6 @@ impl FsBuilder{
                         reading_data = false;
                     }
                     let tokens = &line[2..].split(' ').collect::<Vec<_>>();
-                    last_cmd = tokens[0];
                     match tokens[0] {
                         "cd" => {
                             if tokens[1] == ".." {
@@ -79,7 +72,7 @@ impl FsBuilder{
                                 if tokens[1] == "/" {
                                     self.current_dir = "/".to_owned();
                                 }else {
-                                    let mut folder = self.get_folder();
+                                    let folder = self.get_folder();
                                     folder.folders.insert(tokens[1].to_owned(),Folder::new());
                                     self.current_dir.push_str(&*("/".to_owned() + &tokens[1]));
                                 }
@@ -97,12 +90,12 @@ impl FsBuilder{
                         let file = line.split_once(' ').unwrap();
                         match file {
                             ("dir",name) => {
-                                let mut current_folder = self.get_folder();
+                                let current_folder = self.get_folder();
                                 current_folder.folders.insert(name.to_owned(),Folder::new());
                             },
                             (size,name) => {
-                                let mut current_folder = self.get_folder();
-                                current_folder.files.push(File {name: name.to_owned(), size: u32::from_str(size).unwrap()});
+                                let current_folder = self.get_folder();
+                                current_folder.files.push(File {_name: name.to_owned(), size: u32::from_str(size).unwrap()});
                             }
                         }
                         output.push(line.to_owned());
@@ -131,7 +124,7 @@ impl Folder {
     }
     pub fn scan_for_size(&self) -> Vec<u32> {
         let mut result = vec![];
-        for (n,f) in &self.folders {
+        for (_,f) in &self.folders {
             result.push(f.size());
             result.extend(f.scan_for_size())
         }
@@ -148,10 +141,11 @@ impl Folder {
 }
 #[derive(Debug)]
 pub struct File {
-    name: String,
+    _name: String,
     size: u32,
 }
 
+#[allow(unused)]
 mod tests {
     use super::*;
     use test::Bencher;

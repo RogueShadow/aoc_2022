@@ -1,12 +1,10 @@
 extern crate test;
 
-use std::str::FromStr;
-
 pub fn day10(data: &str) {
     let ops = data.lines()
         .map(|l| match l {
             s if s.starts_with("addx") => {
-                Ops::Addx(i32::from_str(l.split_once(' ').unwrap().1).unwrap())
+                Ops::Addx(l.split_once(' ').unwrap().1.parse::<i32>().unwrap())
             }
             s if s == "noop" => {Ops::Noop}
             _ => {panic!("Unsupported Op")}
@@ -94,6 +92,7 @@ pub fn get_signal_strength(watch: &(usize,i32)) -> i32 {
     watch.0 as i32 * watch.1
 }
 
+#[allow(unused)]
 pub mod tests {
     use std::fs::read_to_string;
     use super::*;

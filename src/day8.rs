@@ -60,7 +60,7 @@ pub fn tree_view_score(forest: &Vec<Vec<i32>>, x: usize, y: usize) -> i32 {
             left += 1;
         }
     }
-    'right: for ix in (x+1..forest[0].len()) {
+    'right: for ix in x+1..forest[0].len() {
         let other = forest[y][ix];
         if other >= tree {
             right += 1;
@@ -129,6 +129,7 @@ pub fn tree_visible(forest: &Vec<Vec<i32>>, x: usize, y: usize) -> bool {
     left || right || top || bottom
 }
 
+#[allow(unused,unused_imports)]
 mod tests {
     use std::fs::read_to_string;
     use super::*;

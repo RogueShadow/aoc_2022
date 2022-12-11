@@ -1,7 +1,7 @@
 extern crate test;
 
+use std::collections::HashSet;
 use std::str::FromStr;
-use image::{ColorType, Rgb};
 
 pub fn day9(data: &str) {
     let moves = day9_process_input(data);
@@ -25,7 +25,7 @@ pub fn day9_process_input(data: &str) -> Vec<Move> {
 }
 pub fn day9p1(moves: &Vec<Move>) {
     use Move::*;
-    let mut visited = vec![(0,0)];
+    let mut visited = HashSet::new();
     let mut head = Body {x: 0, y: 0};
     let mut tail = Body {x: 0, y: 0};
 
@@ -59,7 +59,7 @@ pub fn day9p1(moves: &Vec<Move>) {
     }
     println!("Visited: {}",&visited.len());
 }
-pub fn move_tail(head: &Body, tail: &mut Body, visited: Option<&mut Vec<(i32,i32)>>) {
+pub fn move_tail(head: &Body, tail: &mut Body, visited: Option<&mut HashSet<(i32,i32)>>) {
     if is_tail_touching(head,tail) {return};
     match (head.x == tail.x, head.y == tail.y, head.x > tail.x, head.y > tail.y) {
         (true,true,_,_) => {println!("This shouldn't happen")}
@@ -68,9 +68,7 @@ pub fn move_tail(head: &Body, tail: &mut Body, visited: Option<&mut Vec<(i32,i32
         (false,false,xg,yg) => {tail.x += if xg {1} else {-1}; tail.y += if yg {1} else {-1}}
     }
     if let Some(list) = visited {
-        if !list.contains(&(tail.x,tail.y)) {
-            list.push((tail.x,tail.y))
-        }
+        list.insert((tail.x,tail.y));
     }
 }
 
@@ -130,8 +128,8 @@ pub fn is_tail_touching(head: &Body, tail: &Body) -> bool {
 
 pub fn day9p2(moves: &Vec<Move>) {
     use Move::*;
-    let mut visited = vec![(0,5)];
-    let mut segments = (0..10).map(|n| Body {x: 0, y: 5}).collect::<Vec<_>>();
+    let mut visited = HashSet::new();
+    let mut segments = (0..10).map(|_| Body {x: 0, y: 5}).collect::<Vec<_>>();
 
     for m in moves {
         match m {
@@ -198,6 +196,7 @@ pub struct Body {
     y: i32,
 }
 
+#[allow(unused)]
 pub mod tests {
     use std::fs::read_to_string;
     use super::*;
